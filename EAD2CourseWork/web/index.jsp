@@ -13,8 +13,12 @@
     </head>
     <body>
         <h1>Hello World!</h1>
+        <a href="login.jsp" class="btn-login">Login</a>
         <form method="post" action="login">
             <input type="submit" value="login">
+        </form>
+         <form method="post" action="register">
+            <input type="submit" value="register">
         </form>
     </body>
 </html>
