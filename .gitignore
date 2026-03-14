@@ -24,3 +24,5 @@ hs_err_pid*
 replay_pid*
 /WebApplication1/nbproject/private/
 /EAD2CourseWork/nbproject/private/
+/EAD2CourseWork/build/
+/EAD2CourseWork/dist/
