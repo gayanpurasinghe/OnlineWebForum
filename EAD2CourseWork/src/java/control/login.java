@@ -11,6 +11,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import model.loginCheck;
 
 /**
  *
@@ -70,10 +71,22 @@ public class login extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        //processRequest(request, response);
+        String username = request.getParameter("username");
+        String password = request.getParameter("password");
 
-     RequestDispatcher dis =request.getRequestDispatcher("login.jsp");
-     dis.forward(request,response);
+        loginCheck lc = new loginCheck();
+        model.User user = lc.validate(username, password);
+
+        if (user != null) {
+            // Success: Create session and redirect to index.jsp
+            jakarta.servlet.http.HttpSession session = request.getSession();
+            session.setAttribute("user", user);
+            response.sendRedirect("index.jsp");
+        } else {
+            // Failure: Provide error message and return to login.jsp
+            request.setAttribute("errorMessage", lc.getLastError());
+            request.getRequestDispatcher("login.jsp").forward(request, response);
+        }
     }
 
     /**

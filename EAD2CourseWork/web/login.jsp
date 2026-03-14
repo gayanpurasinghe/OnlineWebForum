@@ -89,25 +89,29 @@ button[type="button"] {
     </head>
     <body>
 
-        <form method="POST" action="">
+        <form method="POST" action="login">
             <div class="login-container">
                 <div class="logo" align="center">
                     <img src="Logo.png" alt="Logo" class="logo-image">
                 </div>
                 <h2>Login</h2>
 
+                <%-- Display Error Message --%>
+                <% String error = (String) request.getAttribute("errorMessage");
+                   if (error != null) { %>
+                    <p style="color: red; text-align: center;"><%= error %></p>
+                <% } %>
+
                 <label for="username">Username:</label>
-                <input type="text" id="username" name="username">
+                <input type="text" id="username" name="username" required>
 
                 <label for="password">Password:</label>
-                <input type="password" id="password" name="password">
+                <input type="password" id="password" name="password" required>
 
                 <button type="submit">Login</button>
                 <button type="button" onclick="window.location.href='register.jsp'">Register</button>
                 <button type="reset">Clear</button>
             </div>
-
-
         </form>
 
     </body>
