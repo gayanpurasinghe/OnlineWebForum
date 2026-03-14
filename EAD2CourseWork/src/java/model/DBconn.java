@@ -17,13 +17,14 @@ import java.util.logging.Logger;
  */
 public class DBconn {
     public Connection con;
+    public String lastError = "";
 
     public DBconn() {
         try {
-            out.println("1");
             Class.forName("com.mysql.cj.jdbc.Driver");
             con = DriverManager.getConnection("jdbc:mysql://localhost:3306/forum_db?zeroDateTimeBehavior=CONVERT_TO_NULL","root", "");
         } catch (ClassNotFoundException | SQLException ex) {
+            lastError = ex.getMessage();
             Logger.getLogger(DBconn.class.getName()).log(Level.SEVERE, null, ex);
         }
     }

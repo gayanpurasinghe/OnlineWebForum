@@ -101,9 +101,9 @@
 
                 <label for="email">Email:</label>
                 <input type="email" id="email" name="email">
-                <body data-error="<?php echo htmlspecialchars($error ?? ''); ?>">
 
-                    <label for="password">Password:</label>
+                <label for="password">Password:</label>
+
                     <input type="password" id="password" name="password" required>
 
                     <label for="confirm_password">Confirm Password:</label>

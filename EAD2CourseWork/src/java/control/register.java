@@ -11,6 +11,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import model.registerInsert;
 
 /**
  *
@@ -70,9 +71,43 @@ public class register extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        //processRequest(request, response);
-             RequestDispatcher dis =request.getRequestDispatcher("register.jsp");
-     dis.forward(request,response);
+        response.setContentType("text/html;charset=UTF-8");
+        try (PrintWriter out = response.getWriter()) {
+            String username = request.getParameter("username");
+            String email = request.getParameter("email");
+            String password = request.getParameter("password");
+            String confirmPassword = request.getParameter("confirm_password");
+
+            if (password != null && !password.equals(confirmPassword)) {
+                out.println("<!DOCTYPE html><html><body>");
+                out.println("<h1 style='color: red;'>Passwords do not match!</h1>");
+                out.println("<a href='register.jsp'>Go Back</a>");
+                out.println("</body></html>");
+                return;
+            }
+
+            registerInsert pd = new registerInsert();
+            boolean success = pd.register(username, email, password);
+
+            out.println("<!DOCTYPE html>");
+            out.println("<html>");
+            out.println("<head>");
+            out.println("<title>Registration Status</title>");
+            out.println("</head>");
+            out.println("<body>");
+            if (success) {
+                out.println("<h1>Registration Successful!</h1>");
+                out.println("<p>Welcome, " + username + "! You can now log in.</p>");
+                out.println("<a href='login.jsp'>Go to Login</a>");
+            } else {
+                out.println("<h1 style='color: red;'>Registration Failed.</h1>");
+                out.println("<p style='color: gray;'>Error: " + pd.getLastError() + "</p>");
+                out.println("<p>Please try again or contact support if the issue persists.</p>");
+                out.println("<a href='register.jsp'>Go Back</a>");
+            }
+            out.println("</body>");
+            out.println("</html>");
+        }
     }
 
     /**

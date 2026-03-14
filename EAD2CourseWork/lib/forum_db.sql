@@ -59,6 +59,7 @@ CREATE TABLE `posts` (
 CREATE TABLE `users` (
   `user_id` int(11) NOT NULL,
   `username` varchar(50) NOT NULL,
+  `email` varchar(200) NOT NULL,
   `password` varchar(255) NOT NULL,
   `role` enum('admin','user') DEFAULT 'user',
   `is_banned` tinyint(1) DEFAULT 0,
