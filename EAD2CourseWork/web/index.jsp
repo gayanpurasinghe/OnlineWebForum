@@ -12,6 +12,25 @@
         <title>JSP Page</title>
     </head>
     <body>
-        <h1>Hello World!</h1>
+        <%-- Session Verification --%>
+        <% model.User user = (model.User) session.getAttribute("user");
+           if (user == null) {
+               response.sendRedirect("login.jsp");
+           } else {
+        %>
+            <h1>Welcome to the Forum, <%= user.getUsername() %>!</h1>
+            <p>You are logged in as: <%= user.getRole() %></p>
+            
+            <%-- Simple Navigation --%>
+            <nav>
+                <a href="index.jsp">Home</a> | 
+                <a href="logout">Logout</a>
+            </nav>
+
+            <hr>
+            <h2>Latest Topics</h2>
+            <p>Topics will be displayed here...</p>
+
+        <% } %>
     </body>
 </html>
