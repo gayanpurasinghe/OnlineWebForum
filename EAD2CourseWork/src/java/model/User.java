@@ -5,14 +5,18 @@ public class User {
     private String username;
     private String email;
     private String role;
+    private String profilePicUrl;
+    private boolean isBanned;
 
     public User() {}
 
-    public User(int userId, String username, String email, String role) {
+    public User(int userId, String username, String email, String role, String profilePicUrl, boolean isBanned) {
         this.userId = userId;
         this.username = username;
         this.email = email;
         this.role = role;
+        this.profilePicUrl = profilePicUrl;
+        this.isBanned = isBanned;
     }
 
     public int getUserId() { return userId; }
@@ -26,4 +30,10 @@ public class User {
 
     public String getRole() { return role; }
     public void setRole(String role) { this.role = role; }
+
+    public String getProfilePicUrl() { return profilePicUrl; }
+    public void setProfilePicUrl(String profilePicUrl) { this.profilePicUrl = profilePicUrl; }
+
+    public boolean isBanned() { return isBanned; }
+    public void setBanned(boolean isBanned) { this.isBanned = isBanned; }
 }

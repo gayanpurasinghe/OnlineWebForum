@@ -21,11 +21,19 @@ public class loginCheck {
             
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
+                boolean isBanned = rs.getBoolean("is_banned");
+                if (isBanned) {
+                    lastError = "Your account has been banned by an administrator.";
+                    return null;
+                }
+                
                 User user = new User();
                 user.setUserId(rs.getInt("user_id"));
                 user.setUsername(rs.getString("username"));
                 user.setEmail(rs.getString("email"));
                 user.setRole(rs.getString("role"));
+                user.setProfilePicUrl(rs.getString("profile_pic_url"));
+                user.setBanned(false);
                 return user;
             } else {
                 lastError = "Invalid username or password.";
