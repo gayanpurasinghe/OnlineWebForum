@@ -92,7 +92,7 @@ button[type="button"] {
         <form method="POST" action="login">
             <div class="login-container">
                 <div class="logo" align="center">
-                    <img src="Logo.png" alt="Logo" class="logo-image">
+                    <img src="images/LogoBG.png" alt="LogoBG.png" class="logo-image">
                 </div>
                 <h2>Login</h2>
 

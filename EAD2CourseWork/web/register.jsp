@@ -92,7 +92,7 @@
         <form method="POST" action="register">
             <div class="register-container">
                 <div class="logo" align="center">
-                    <img src="Logo.png" alt="Logo" class="logo-image">
+                    <img src="images/LogoBG.png" alt="Logo" class="logo-image">
                 </div>
                 <h2>Register</h2>
 
