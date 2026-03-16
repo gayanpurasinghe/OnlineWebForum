@@ -9,7 +9,12 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.Part;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.UUID;
+import model.ConfigReader;
 import model.ProfileDAO;
 import model.User;
 
@@ -44,13 +49,30 @@ public class ProfileServlet extends HttpServlet {
             
             if (filePart != null && filePart.getSize() > 0) {
                 String fileName = UUID.randomUUID().toString() + "_" + getFileName(filePart);
-                String uploadPath = getServletContext().getRealPath("") + File.separator + "uploads";
-                File uploadDir = new File(uploadPath);
-                if (!uploadDir.exists()) {
-                    uploadDir.mkdir();
+                // 1. Save to the temporary build directory
+                String buildUploadPath = getServletContext().getRealPath("") + File.separator + "uploads";
+                File buildUploadDir = new File(buildUploadPath);
+                if (!buildUploadDir.exists()) {
+                    buildUploadDir.mkdir();
                 }
+                String buildFilePath = buildUploadPath + File.separator + fileName;
+                filePart.write(buildFilePath);
                 
-                filePart.write(uploadPath + File.separator + fileName);
+                // 2. Save to the permanent project directory
+                String projectBasePath = ConfigReader.getProperty("PROJECT_BASE_PATH");
+                String permanentUploadPath = projectBasePath + File.separator + "web" + File.separator + "uploads";
+                File permanentUploadDir = new File(permanentUploadPath);
+                if (!permanentUploadDir.exists()) {
+                    permanentUploadDir.mkdir();
+                }
+                String permanentFilePath = permanentUploadPath + File.separator + fileName;
+                
+                try {
+                    Files.copy(Paths.get(buildFilePath), Paths.get(permanentFilePath), StandardCopyOption.REPLACE_EXISTING);
+                } catch (IOException e) {
+                    System.err.println("Failed to copy profile picture to permanent directory: " + e.getMessage());
+                }
+
                 String imageUrl = "uploads/" + fileName;
                 
                 boolean success = profileDAO.updateProfilePic(user.getUserId(), imageUrl);
