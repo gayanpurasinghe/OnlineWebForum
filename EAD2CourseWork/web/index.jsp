@@ -103,7 +103,7 @@
             <% if ("admin".equals(user.getRole())) { %>
                 <a href="admin.jsp">Admin Dashboard</a>
             <% } %>
-            <a href="logout" class="btn btn-danger">Logout</a>
+           <a href="#" onclick="confirmLogout(event)" class="btn btn-danger">Logout</a>
         </div>
     </header>
 
@@ -240,6 +240,26 @@
                     timerProgressBar: true
                 });
             });
+            
+           function confirmLogout(event) {
+               event.preventDefault(); // Stops the browser from instantly navigating away
+
+          Swal.fire({
+             title: 'Are you sure?',
+             text: "You will be logged out of your account.",
+             icon: 'warning',
+             showCancelButton: true,
+             confirmButtonColor: '#EF4444', /* Matches your red btn-danger color */
+             cancelButtonColor: '#6B7280',  /* Gray cancel button */
+             confirmButtonText: 'Yes, log out',
+              cancelButtonText: 'No, stay logged in'
+          }).then((result) => {
+        // This checks if the user clicked the "Yes" button
+            if (result.isConfirmed) {
+            window.location.href = 'logout'; // Sends them to your logout.java servlet
+        }
+    });
+}
         </script>
     <%
         }
