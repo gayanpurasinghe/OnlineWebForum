@@ -74,6 +74,11 @@ public class PostServlet extends HttpServlet {
             // In a real app we'd also check if user is admin or the post owner
             postDAO.deletePost(postId);
             response.sendRedirect("index.jsp");
+        } else if ("deleteComment".equals(action)) {
+            int commentId = Integer.parseInt(request.getParameter("commentId"));
+            // Basic check could be added here similar to deletePost
+            postDAO.deleteComment(commentId);
+            response.sendRedirect("index.jsp");
         } else {
             response.sendRedirect("index.jsp");
         }

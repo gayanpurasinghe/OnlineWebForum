@@ -135,4 +135,15 @@ public class PostDAO {
         }
         return comments;
     }
+
+    public boolean deleteComment(int commentId) {
+        String query = "DELETE FROM comments WHERE comment_id = ?";
+        try (PreparedStatement pstmt = db.con.prepareStatement(query)) {
+            pstmt.setInt(1, commentId);
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException ex) {
+            Logger.getLogger(PostDAO.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
+        }
+    }
 }
