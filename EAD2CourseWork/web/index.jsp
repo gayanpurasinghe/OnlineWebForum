@@ -12,6 +12,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Online Web Forum</title>
@@ -197,5 +198,51 @@
             <% } %>
         </div>
     </div>
+
+   <%-- SweetAlert2 Integration for Login, Posting, and Deleting --%>
+    <%
+        // Get attributes
+        String loginSuccess = (String) session.getAttribute("loginSuccess");
+        String postSuccess = (String) session.getAttribute("postSuccess");
+        String deleteSuccess = (String) session.getAttribute("deleteSuccess");
+        
+        String alertMessage = null;
+        String alertTitle = "Success!";
+        String alertIcon = "success"; // default green checkmark
+        
+        // Check which event just happened and clean up the session
+        if (loginSuccess != null) {
+            alertMessage = loginSuccess;
+            alertTitle = "Welcome!";
+            session.removeAttribute("loginSuccess");
+        } else if (postSuccess != null) {
+            alertMessage = postSuccess;
+            session.removeAttribute("postSuccess");
+        } else if (deleteSuccess != null) {
+            alertMessage = deleteSuccess;
+            alertTitle = "Deleted";
+            alertIcon = "info"; // Use a blue 'info' icon for deletions
+            session.removeAttribute("deleteSuccess");
+        }
+        
+        // If any of the above happened, trigger the pop-up
+        if (alertMessage != null) {
+    %>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                Swal.fire({
+                    title: '<%= alertTitle %>',
+                    text: '<%= alertMessage %>',
+                    icon: '<%= alertIcon %>',
+                    confirmButtonColor: '#4F46E5', /* Your theme's primary purple */
+                    timer: 3000,
+                    timerProgressBar: true
+                });
+            });
+        </script>
+    <%
+        }
+    %>
 </body>
 </html>

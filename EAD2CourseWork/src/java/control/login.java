@@ -81,6 +81,7 @@ public class login extends HttpServlet {
             // Success: Create session and redirect to index.jsp
             jakarta.servlet.http.HttpSession session = request.getSession();
             session.setAttribute("user", user);
+            session.setAttribute("loginSuccess", "Welcome back, " + user.getUsername() + "!");
             response.sendRedirect("index.jsp");
         } else {
             // Failure: Provide error message and return to login.jsp
