@@ -87,8 +87,10 @@
                 background-color: #2196F3;
             }
         </style>
+        <link rel="stylesheet" type="text/css" href="css/popup.css">
     </head>
-    <body>
+    <body data-error="<%= session.getAttribute("error") != null ? session.getAttribute("error") : "" %>">
+        <% session.removeAttribute("error"); %>
         <form method="POST" action="register">
             <div class="register-container">
                 <div class="logo" align="center">
@@ -114,5 +116,6 @@
                     <button type="reset">Clear</button>
             </div>
         </form>
+        <script src="js/popup.js"></script>
     </body>
 </html>

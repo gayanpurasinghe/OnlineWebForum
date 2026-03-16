@@ -80,8 +80,16 @@
         .comment-form { display: flex; gap: 0.5rem; margin-top: 1rem; }
         .comment-form input { flex: 1; }
     </style>
+    <link rel="stylesheet" type="text/css" href="css/popup.css">
 </head>
-<body>
+<body 
+    data-error="<%= request.getAttribute("errorMessage") != null ? request.getAttribute("errorMessage") : "" %>"
+    data-success="<%= session.getAttribute("successMessage") != null ? session.getAttribute("successMessage") : "" %>"
+>
+    <% 
+        request.removeAttribute("errorMessage"); 
+        session.removeAttribute("successMessage");
+    %>
     <%-- Session Verification --%>
     <% 
         model.User user = (model.User) session.getAttribute("user");
@@ -102,17 +110,11 @@
             <% if ("admin".equals(user.getRole())) { %>
                 <a href="admin.jsp">Admin Dashboard</a>
             <% } %>
-            <a href="logout" class="btn btn-danger">Logout</a>
+            <a href="logout" class="btn btn-danger" onclick="event.preventDefault(); showConfirm('Logout', 'Are you sure you want to logout?', () => window.location.href='logout')">Logout</a>
         </div>
     </header>
 
     <div class="container">
-        
-        <% if (request.getAttribute("errorMessage") != null) { %>
-            <div style="background: #FEE2E2; color: #DC2626; padding: 1rem; border-radius: 6px; margin-bottom: 1rem;">
-                <%= request.getAttribute("errorMessage") %>
-            </div>
-        <% } %>
 
         <div class="create-post">
             <h2 style="margin-top:0;">Create a Discussion</h2>
@@ -197,5 +199,6 @@
             <% } %>
         </div>
     </div>
+    <script src="js/popup.js"></script>
 </body>
 </html>

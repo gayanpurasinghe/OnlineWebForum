@@ -82,12 +82,17 @@ button[type="reset"] {
     background-color: #9e9e9e;
 }
 
-button[type="button"] {
-    background-color: #2196F3;
-}
+            button[type="button"] {
+                background-color: #2196F3;
+            }
         </style>
+        <link rel="stylesheet" type="text/css" href="css/popup.css">
     </head>
-    <body>
+    <body 
+        data-error="<%= request.getAttribute("errorMessage") != null ? request.getAttribute("errorMessage") : "" %>"
+        data-success="<%= session.getAttribute("successMessage") != null ? session.getAttribute("successMessage") : "" %>"
+    >
+        <% session.removeAttribute("successMessage"); %>
 
         <form method="POST" action="login">
             <div class="login-container">
@@ -95,12 +100,6 @@ button[type="button"] {
                     <img src="images/LogoBG.png" alt="LogoBG.png" class="logo-image">
                 </div>
                 <h2>Login</h2>
-
-                <%-- Display Error Message --%>
-                <% String error = (String) request.getAttribute("errorMessage");
-                   if (error != null) { %>
-                    <p style="color: red; text-align: center;"><%= error %></p>
-                <% } %>
 
                 <label for="username">Username:</label>
                 <input type="text" id="username" name="username" required>
@@ -113,6 +112,6 @@ button[type="button"] {
                 <button type="reset">Clear</button>
             </div>
         </form>
-
+        <script src="js/popup.js"></script>
     </body>
 </html>

@@ -11,6 +11,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import model.registerInsert;
 
 /**
@@ -23,10 +24,10 @@ public class register extends HttpServlet {
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
      *
-     * @param request servlet request
+     * @param request  servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
+     * @throws IOException      if an I/O error occurs
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -45,14 +46,15 @@ public class register extends HttpServlet {
         }
     }
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the
+    // + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.
      *
-     * @param request servlet request
+     * @param request  servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
+     * @throws IOException      if an I/O error occurs
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -63,50 +65,36 @@ public class register extends HttpServlet {
     /**
      * Handles the HTTP <code>POST</code> method.
      *
-     * @param request servlet request
+     * @param request  servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
+     * @throws IOException      if an I/O error occurs
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
-            String username = request.getParameter("username");
-            String email = request.getParameter("email");
-            String password = request.getParameter("password");
-            String confirmPassword = request.getParameter("confirm_password");
+        HttpSession session = request.getSession();
+        String username = request.getParameter("username");
+        String email = request.getParameter("email");
+        String password = request.getParameter("password");
+        String confirmPassword = request.getParameter("confirm_password");
 
-            if (password != null && !password.equals(confirmPassword)) {
-                out.println("<!DOCTYPE html><html><body>");
-                out.println("<h1 style='color: red;'>Passwords do not match!</h1>");
-                out.println("<a href='register.jsp'>Go Back</a>");
-                out.println("</body></html>");
-                return;
-            }
+        if (password != null && !password.equals(confirmPassword)) {
+            session.setAttribute("error", "passwords_mismatch");
+            response.sendRedirect("register.jsp");
+            return;
+        }
 
-            registerInsert pd = new registerInsert();
-            boolean success = pd.register(username, email, password);
+        registerInsert pd = new registerInsert();
+        boolean success = pd.register(username, email, password);
 
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Registration Status</title>");
-            out.println("</head>");
-            out.println("<body>");
-            if (success) {
-                out.println("<h1>Registration Successful!</h1>");
-                out.println("<p>Welcome, " + username + "! You can now log in.</p>");
-                out.println("<a href='login.jsp'>Go to Login</a>");
-            } else {
-                out.println("<h1 style='color: red;'>Registration Failed.</h1>");
-                out.println("<p style='color: gray;'>Error: " + pd.getLastError() + "</p>");
-                out.println("<p>Please try again or contact support if the issue persists.</p>");
-                out.println("<a href='register.jsp'>Go Back</a>");
-            }
-            out.println("</body>");
-            out.println("</html>");
+        if (success) {
+            session.setAttribute("successMessage", "Registration successful! You can now log in.");
+            response.sendRedirect("login.jsp");
+        } else {
+            session.setAttribute("error", pd.getLastError());
+            response.sendRedirect("register.jsp");
         }
     }
 
