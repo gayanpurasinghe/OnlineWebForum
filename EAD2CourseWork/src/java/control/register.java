@@ -68,49 +68,54 @@ public class register extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
-            String username = request.getParameter("username");
-            String email = request.getParameter("email");
-            String password = request.getParameter("password");
-            String confirmPassword = request.getParameter("confirm_password");
+ @Override
+protected void doPost(HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException {
+    
+    String username = request.getParameter("username");
+    String email = request.getParameter("email");
+    String password = request.getParameter("password");
+    String confirmPassword = request.getParameter("confirm_password");
 
-            if (password != null && !password.equals(confirmPassword)) {
-                out.println("<!DOCTYPE html><html><body>");
-                out.println("<h1 style='color: red;'>Passwords do not match!</h1>");
-                out.println("<a href='register.jsp'>Go Back</a>");
-                out.println("</body></html>");
-                return;
-            }
+    registerInsert pd = new registerInsert();
 
-            registerInsert pd = new registerInsert();
-            boolean success = pd.register(username, email, password);
-
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Registration Status</title>");
-            out.println("</head>");
-            out.println("<body>");
-            if (success) {
-                out.println("<h1>Registration Successful!</h1>");
-                out.println("<p>Welcome, " + username + "! You can now log in.</p>");
-                out.println("<a href='login.jsp'>Go to Login</a>");
-            } else {
-                out.println("<h1 style='color: red;'>Registration Failed.</h1>");
-                out.println("<p style='color: gray;'>Error: " + pd.getLastError() + "</p>");
-                out.println("<p>Please try again or contact support if the issue persists.</p>");
-                out.println("<a href='register.jsp'>Go Back</a>");
-            }
-            out.println("</body>");
-            out.println("</html>");
-        }
+    // 1. Check Password Mismatch
+    if (password == null || !password.equals(confirmPassword)) {
+        sendToErrorPage(request, response, "Passwords do not match!", 400);
+        return;
     }
 
-    /**
+    // 2. Check Duplicate Username
+    if (pd.isUsernameExists(username)) {
+        sendToErrorPage(request, response, "The username '" + username + "' is already taken.", 409);
+        return;
+    }
+
+    // 3. Check Duplicate Email
+    if (pd.isEmailExists(email)) {
+        sendToErrorPage(request, response, "The email '" + email + "' is already registered.", 409);
+        return;
+    }
+
+    // 4. Register the User
+    boolean success = pd.register(username, email, password);
+
+    if (success) {
+        request.setAttribute("username", username);
+        request.getRequestDispatcher("success.jsp").forward(request, response);
+    } else {
+        sendToErrorPage(request, response, pd.getLastError(), 500);
+    }
+}
+
+// Helper method to keep the code clean
+private void sendToErrorPage(HttpServletRequest request, HttpServletResponse response, String msg, int code) 
+        throws ServletException, IOException {
+    request.setAttribute("jakarta.servlet.error.status_code", code);
+    request.setAttribute("jakarta.servlet.error.message", msg);
+    request.setAttribute("jakarta.servlet.error.request_uri", request.getRequestURI());
+    request.getRequestDispatcher("error.jsp").forward(request, response);
+}  /**
      * Returns a short description of the servlet.
      *
      * @return a String containing servlet description
