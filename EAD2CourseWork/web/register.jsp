@@ -89,9 +89,7 @@
         </style>
         <link rel="stylesheet" type="text/css" href="css/popup.css">
     </head>
-    <body 
-        data-error="<%= session.getAttribute("error") != null ? session.getAttribute("error") : "" %>"
-    >
+    <body data-error="<%= session.getAttribute("error") != null ? session.getAttribute("error") : "" %>">
         <% session.removeAttribute("error"); %>
         <form method="POST" action="register">
             <div class="register-container">

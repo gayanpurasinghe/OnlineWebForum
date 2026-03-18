@@ -82,9 +82,9 @@ button[type="reset"] {
     background-color: #9e9e9e;
 }
 
-button[type="button"] {
-    background-color: #2196F3;
-}
+            button[type="button"] {
+                background-color: #2196F3;
+            }
         </style>
         <link rel="stylesheet" type="text/css" href="css/popup.css">
     </head>
@@ -104,8 +104,6 @@ button[type="button"] {
                 </div>
                 <h2>Login</h2>
 
-
-
                 <label for="username">Username:</label>
                 <input type="text" id="username" name="username" required>
 
@@ -117,7 +115,6 @@ button[type="button"] {
                 <button type="reset">Clear</button>
             </div>
         </form>
-
         <script src="js/popup.js"></script>
     </body>
 </html>

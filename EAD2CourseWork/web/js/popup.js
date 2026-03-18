@@ -14,15 +14,35 @@ const errorMessages = {
         message: "Username is already taken.",
         type: "error"
     },
-    "passwords_mismatch": {
-        title: "Password Mismatch",
-        message: "Passwords do not match.",
+    "username_too_short": {
+        title: "Username Too Short",
+        message: "Username must be at least 5 characters long.",
+        type: "error"
+    },
+    "password_too_short": {
+        title: "Password Too Short",
+        message: "Password must be at least 8 characters long.",
+        type: "error"
+    },
+    "invalid_email": {
+        title: "Invalid Email",
+        message: "Invalid email format.",
         type: "error"
     },
     "default_error": {
         title: "Error",
         message: "An unknown error occurred.",
         type: "error"
+    },
+    "passwords_mismatch": {
+        title: "Password Mismatch",
+        message: "Passwords do not match.",
+        type: "error"
+    },
+    "registration_success": {
+        title: "Success",
+        message: "Registration successful. Please login.",
+        type: "success"
     }
 };
 
@@ -63,12 +83,14 @@ function showPopup(titleText, messageText, type = "error") {
     const box = document.getElementById("popupBox");
     const okBtn = box.querySelector("button.ok-btn");
 
+
     const existingActions = box.querySelector(".popup-actions");
     if (existingActions) existingActions.remove();
 
     if (overlay && title && message) {
         title.textContent = titleText;
         message.textContent = messageText;
+
 
         if (!okBtn) {
             const newOkBtn = document.createElement("button");
@@ -100,8 +122,10 @@ function showConfirm(titleText, messageText, onYes) {
     const message = document.getElementById("popupMessage");
     const box = document.getElementById("popupBox");
 
+
     const okBtn = box.querySelector("button.ok-btn") || box.querySelector("button");
     if (okBtn) okBtn.style.display = "none";
+
 
     const existingActions = box.querySelector(".popup-actions");
     if (existingActions) existingActions.remove();
@@ -159,14 +183,18 @@ function handleAuthErrors(errorCode, successMessage = null) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+    // Check for data attributes on body
     const body = document.body;
     let error = body.getAttribute('data-error');
     let success = body.getAttribute('data-success');
 
     if (error) {
+        // If the error matches a key in errorMessages, use that. 
+        // Otherwise, treat it as a direct message string (or fallback to default).
         if (errorMessages[error]) {
             handleAuthErrors(error);
         } else {
+            // Treat as direct message if not a key
             showPopup("Error", error, "error");
         }
     }

@@ -11,6 +11,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import model.registerInsert;
 
 /**
@@ -23,10 +24,10 @@ public class register extends HttpServlet {
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
      *
-     * @param request servlet request
+     * @param request  servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
+     * @throws IOException      if an I/O error occurs
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -45,14 +46,15 @@ public class register extends HttpServlet {
         }
     }
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the
+    // + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.
      *
-     * @param request servlet request
+     * @param request  servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
+     * @throws IOException      if an I/O error occurs
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -63,32 +65,42 @@ public class register extends HttpServlet {
     /**
      * Handles the HTTP <code>POST</code> method.
      *
-     * @param request servlet request
+     * @param request  servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
+     * @throws IOException      if an I/O error occurs
      */
- @Override
-protected void doPost(HttpServletRequest request, HttpServletResponse response)
-        throws ServletException, IOException {
-    
-    String username = request.getParameter("username");
-    String email = request.getParameter("email");
-    String password = request.getParameter("password");
-    String confirmPassword = request.getParameter("confirm_password");
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        response.setContentType("text/html;charset=UTF-8");
+        HttpSession session = request.getSession();
+        String username = request.getParameter("username");
+        String email = request.getParameter("email");
+        String password = request.getParameter("password");
+        String confirmPassword = request.getParameter("confirm_password");
 
-    registerInsert pd = new registerInsert();
-
-    // 1. Check Password Mismatch
-    if (password == null || !password.equals(confirmPassword)) {
-        sendToErrorPage(request, response, "Passwords do not match!", 400);
+        if (password != null && !password.equals(confirmPassword)) {
+            session.setAttribute("error", "passwords_mismatch");
+            response.sendRedirect("register.jsp");
+            return;
+        }
+  
+        if (pd.isUsernameExists(username)) {
+            session.setAttribute("error", "The username '" + username + "' is already taken.");
+            response.sendRedirect("register.jsp");
         return;
-    }
 
-    // 2. Check Duplicate Username
-    if (pd.isUsernameExists(username)) {
-        sendToErrorPage(request, response, "The username '" + username + "' is already taken.", 409);
-        return;
+        registerInsert pd = new registerInsert();
+        boolean success = pd.register(username, email, password);
+
+        if (success) {
+            session.setAttribute("successMessage", "Registration successful! You can now log in.");
+            response.sendRedirect("login.jsp");
+        } else {
+            session.setAttribute("error", pd.getLastError());
+            response.sendRedirect("register.jsp");
+        }
     }
 
     // 3. Check Duplicate Email

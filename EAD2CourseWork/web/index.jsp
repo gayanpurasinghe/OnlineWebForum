@@ -115,12 +115,6 @@
     </header>
 
     <div class="container">
-        
-        <% if (request.getAttribute("errorMessage") != null) { %>
-            <div style="background: #FEE2E2; color: #DC2626; padding: 1rem; border-radius: 6px; margin-bottom: 1rem;">
-                <%= request.getAttribute("errorMessage") %>
-            </div>
-        <% } %>
 
         <div class="create-post">
             <h2 style="margin-top:0;">Create a Discussion</h2>
