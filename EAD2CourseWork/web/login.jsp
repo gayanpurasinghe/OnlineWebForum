@@ -89,10 +89,13 @@ button[type="reset"] {
         <link rel="stylesheet" type="text/css" href="css/popup.css">
     </head>
     <body 
-        data-error="<%= request.getAttribute("errorMessage") != null ? request.getAttribute("errorMessage") : "" %>"
+        data-error="<%= request.getAttribute("errorMessage") != null ? request.getAttribute("errorMessage") : (session.getAttribute("error") != null ? session.getAttribute("error") : "") %>"
         data-success="<%= session.getAttribute("successMessage") != null ? session.getAttribute("successMessage") : "" %>"
     >
-        <% session.removeAttribute("successMessage"); %>
+        <% 
+            session.removeAttribute("error");
+            session.removeAttribute("successMessage");
+        %>
 
         <form method="POST" action="login">
             <div class="login-container">

@@ -5,14 +5,40 @@
 package model;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
-/**
- *
- * @author gayan
- */
 public class registerInsert {
-    private String lastError = "";
+    private String lastError = ""; 
+    
+    public boolean isUsernameExists(String username) {
+    DBconn cn = new DBconn();
+    String sql = "SELECT username FROM users WHERE username = ?";
+    try (PreparedStatement stmt = cn.con.prepareStatement(sql)) {
+        stmt.setString(1, username);
+        try (ResultSet rs = stmt.executeQuery()) {
+            return rs.next();
+        }
+    } catch (SQLException ex) {
+        lastError = ex.getMessage();
+        return false;
+    }
+}
+
+    // New method to check for existing email
+    public boolean isEmailExists(String email) {
+        DBconn cn = new DBconn();
+        String sql = "SELECT email FROM users WHERE email = ?";
+        try (PreparedStatement stmt = cn.con.prepareStatement(sql)) {
+            stmt.setString(1, email);
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next(); // Returns true if a record is found
+            }
+        } catch (SQLException ex) {
+            lastError = ex.getMessage();
+            return false;
+        }
+    }
 
     public boolean register(String username, String email, String password) {
         DBconn cn = new DBconn();
@@ -38,4 +64,6 @@ public class registerInsert {
         return lastError;
     }
 }
+
+
 

@@ -83,14 +83,14 @@
     <link rel="stylesheet" type="text/css" href="css/popup.css">
 </head>
 <body 
-    data-error="<%= request.getAttribute("errorMessage") != null ? request.getAttribute("errorMessage") : "" %>"
+    data-error="<%= request.getAttribute("errorMessage") != null ? request.getAttribute("errorMessage") : (session.getAttribute("error") != null ? session.getAttribute("error") : "") %>"
     data-success="<%= session.getAttribute("successMessage") != null ? session.getAttribute("successMessage") : "" %>"
 >
     <% 
         request.removeAttribute("errorMessage"); 
+        session.removeAttribute("error");
         session.removeAttribute("successMessage");
     %>
-    <%-- Session Verification --%>
     <% 
         model.User user = (model.User) session.getAttribute("user");
         if (user == null) {
@@ -148,10 +148,13 @@
                             </div>
                         </div>
                         <% if ("admin".equals(user.getRole()) || user.getUserId() == post.getUserId()) { %>
-                            <form action="PostServlet" method="POST" style="margin:0;">
+                            <form action="PostServlet" method="POST" style="margin:0;" id="deletePost_<%= post.getPostId() %>">
                                 <input type="hidden" name="action" value="deletePost">
                                 <input type="hidden" name="postId" value="<%= post.getPostId() %>">
-                                <button type="submit" class="btn btn-danger" style="padding: 0.25rem 0.5rem; font-size: 0.875rem;" onclick="return confirm('Are you sure you want to delete this post?');">Delete</button>
+                                <button type="button" class="btn btn-danger" style="padding: 0.25rem 0.5rem; font-size: 0.875rem;" 
+                                    onclick="showConfirm('Delete Post', 'Are you sure you want to delete this post?', () => document.getElementById('deletePost_<%= post.getPostId() %>').submit())">
+                                    Delete
+                                </button>
                             </form>
                         <% } %>
                     </div>
@@ -172,8 +175,20 @@
                         %>
                             <div class="comment">
                                 <div class="comment-header">
-                                    <span class="comment-author"><%= c.getUsername() %></span>
-                                    <span class="post-meta"><%= c.getCreatedDate() %></span>
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <span class="comment-author"><%= c.getUsername() %></span>
+                                        <span class="post-meta" style="font-size: 0.75rem;"><%= c.getCreatedDate() %></span>
+                                    </div>
+                                    <% if ("admin".equals(user.getRole()) || user.getUserId() == c.getUserId()) { %>
+                                        <form action="PostServlet" method="POST" style="margin:0;" id="deleteComment_<%= c.getCommentId() %>">
+                                            <input type="hidden" name="action" value="deleteComment">
+                                            <input type="hidden" name="commentId" value="<%= c.getCommentId() %>">
+                                            <button type="button" class="btn btn-danger" style="padding: 0.15rem 0.4rem; font-size: 0.7rem;" 
+                                                onclick="showConfirm('Delete Comment', 'Are you sure you want to delete this comment?', () => document.getElementById('deleteComment_<%= c.getCommentId() %>').submit())">
+                                                Delete
+                                            </button>
+                                        </form>
+                                    <% } %>
                                 </div>
                                 <div><%= c.getCommentText() %></div>
                             </div>
