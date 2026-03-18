@@ -81,9 +81,17 @@
         .comment-form { display: flex; gap: 0.5rem; margin-top: 1rem; }
         .comment-form input { flex: 1; }
     </style>
+    <link rel="stylesheet" type="text/css" href="css/popup.css">
 </head>
-<body>
-    <%-- Session Verification --%>
+<body 
+    data-error="<%= request.getAttribute("errorMessage") != null ? request.getAttribute("errorMessage") : (session.getAttribute("error") != null ? session.getAttribute("error") : "") %>"
+    data-success="<%= session.getAttribute("successMessage") != null ? session.getAttribute("successMessage") : "" %>"
+>
+    <% 
+        request.removeAttribute("errorMessage"); 
+        session.removeAttribute("error");
+        session.removeAttribute("successMessage");
+    %>
     <% 
         model.User user = (model.User) session.getAttribute("user");
         if (user == null) {
@@ -103,17 +111,11 @@
             <% if ("admin".equals(user.getRole())) { %>
                 <a href="admin.jsp">Admin Dashboard</a>
             <% } %>
-           <a href="#" onclick="confirmLogout(event)" class="btn btn-danger">Logout</a>
+            <a href="logout" class="btn btn-danger" onclick="event.preventDefault(); showConfirm('Logout', 'Are you sure you want to logout?', () => window.location.href='logout')">Logout</a>
         </div>
     </header>
 
     <div class="container">
-        
-        <% if (request.getAttribute("errorMessage") != null) { %>
-            <div style="background: #FEE2E2; color: #DC2626; padding: 1rem; border-radius: 6px; margin-bottom: 1rem;">
-                <%= request.getAttribute("errorMessage") %>
-            </div>
-        <% } %>
 
         <div class="create-post">
             <h2 style="margin-top:0;">Create a Discussion</h2>
@@ -147,10 +149,13 @@
                             </div>
                         </div>
                         <% if ("admin".equals(user.getRole()) || user.getUserId() == post.getUserId()) { %>
-                            <form action="PostServlet" method="POST" style="margin:0;">
+                            <form action="PostServlet" method="POST" style="margin:0;" id="deletePost_<%= post.getPostId() %>">
                                 <input type="hidden" name="action" value="deletePost">
                                 <input type="hidden" name="postId" value="<%= post.getPostId() %>">
-                                <button type="submit" class="btn btn-danger" style="padding: 0.25rem 0.5rem; font-size: 0.875rem;" onclick="return confirm('Are you sure you want to delete this post?');">Delete</button>
+                                <button type="button" class="btn btn-danger" style="padding: 0.25rem 0.5rem; font-size: 0.875rem;" 
+                                    onclick="showConfirm('Delete Post', 'Are you sure you want to delete this post?', () => document.getElementById('deletePost_<%= post.getPostId() %>').submit())">
+                                    Delete
+                                </button>
                             </form>
                         <% } %>
                     </div>
@@ -171,8 +176,20 @@
                         %>
                             <div class="comment">
                                 <div class="comment-header">
-                                    <span class="comment-author"><%= c.getUsername() %></span>
-                                    <span class="post-meta"><%= c.getCreatedDate() %></span>
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <span class="comment-author"><%= c.getUsername() %></span>
+                                        <span class="post-meta" style="font-size: 0.75rem;"><%= c.getCreatedDate() %></span>
+                                    </div>
+                                    <% if ("admin".equals(user.getRole()) || user.getUserId() == c.getUserId()) { %>
+                                        <form action="PostServlet" method="POST" style="margin:0;" id="deleteComment_<%= c.getCommentId() %>">
+                                            <input type="hidden" name="action" value="deleteComment">
+                                            <input type="hidden" name="commentId" value="<%= c.getCommentId() %>">
+                                            <button type="button" class="btn btn-danger" style="padding: 0.15rem 0.4rem; font-size: 0.7rem;" 
+                                                onclick="showConfirm('Delete Comment', 'Are you sure you want to delete this comment?', () => document.getElementById('deleteComment_<%= c.getCommentId() %>').submit())">
+                                                Delete
+                                            </button>
+                                        </form>
+                                    <% } %>
                                 </div>
                                 <div><%= c.getCommentText() %></div>
                             </div>
@@ -198,71 +215,6 @@
             <% } %>
         </div>
     </div>
-
-   <%-- SweetAlert2 Integration for Login, Posting, and Deleting --%>
-    <%
-        // Get attributes
-        String loginSuccess = (String) session.getAttribute("loginSuccess");
-        String postSuccess = (String) session.getAttribute("postSuccess");
-        String deleteSuccess = (String) session.getAttribute("deleteSuccess");
-        
-        String alertMessage = null;
-        String alertTitle = "Success!";
-        String alertIcon = "success"; // default green checkmark
-        
-        // Check which event just happened and clean up the session
-        if (loginSuccess != null) {
-            alertMessage = loginSuccess;
-            alertTitle = "Welcome!";
-            session.removeAttribute("loginSuccess");
-        } else if (postSuccess != null) {
-            alertMessage = postSuccess;
-            session.removeAttribute("postSuccess");
-        } else if (deleteSuccess != null) {
-            alertMessage = deleteSuccess;
-            alertTitle = "Deleted";
-            alertIcon = "info"; // Use a blue 'info' icon for deletions
-            session.removeAttribute("deleteSuccess");
-        }
-        
-        // If any of the above happened, trigger the pop-up
-        if (alertMessage != null) {
-    %>
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-        <script>
-            document.addEventListener("DOMContentLoaded", function() {
-                Swal.fire({
-                    title: '<%= alertTitle %>',
-                    text: '<%= alertMessage %>',
-                    icon: '<%= alertIcon %>',
-                    confirmButtonColor: '#4F46E5', /* Your theme's primary purple */
-                    timer: 3000,
-                    timerProgressBar: true
-                });
-            });
-            
-           function confirmLogout(event) {
-               event.preventDefault(); // Stops the browser from instantly navigating away
-
-          Swal.fire({
-             title: 'Are you sure?',
-             text: "You will be logged out of your account.",
-             icon: 'warning',
-             showCancelButton: true,
-             confirmButtonColor: '#EF4444', /* Matches your red btn-danger color */
-             cancelButtonColor: '#6B7280',  /* Gray cancel button */
-             confirmButtonText: 'Yes, log out',
-              cancelButtonText: 'No, stay logged in'
-          }).then((result) => {
-        // This checks if the user clicked the "Yes" button
-            if (result.isConfirmed) {
-            window.location.href = 'logout'; // Sends them to your logout.java servlet
-        }
-    });
-}
-        </script>
-    <%
-        }
-    %>
+    <script src="js/popup.js"></script>
 </body>
 </html>
