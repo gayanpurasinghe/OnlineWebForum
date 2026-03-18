@@ -85,13 +85,19 @@ public class register extends HttpServlet {
             response.sendRedirect("register.jsp");
             return;
         }
+           registerInsert pd = new registerInsert();
   
         if (pd.isUsernameExists(username)) {
             session.setAttribute("error", "The username '" + username + "' is already taken.");
             response.sendRedirect("register.jsp");
         return;
+        }
+    if (pd.isEmailExists(email)) {
+            session.setAttribute("error", "The email '" + email + "' is already registered.");
+            response.sendRedirect("register.jsp");
+        return;
+    }
 
-        registerInsert pd = new registerInsert();
         boolean success = pd.register(username, email, password);
 
         if (success) {
@@ -101,40 +107,7 @@ public class register extends HttpServlet {
             session.setAttribute("error", pd.getLastError());
             response.sendRedirect("register.jsp");
         }
+    
     }
-
-    // 3. Check Duplicate Email
-    if (pd.isEmailExists(email)) {
-        sendToErrorPage(request, response, "The email '" + email + "' is already registered.", 409);
-        return;
-    }
-
-    // 4. Register the User
-    boolean success = pd.register(username, email, password);
-
-    if (success) {
-        request.setAttribute("username", username);
-        request.getRequestDispatcher("success.jsp").forward(request, response);
-    } else {
-        sendToErrorPage(request, response, pd.getLastError(), 500);
-    }
-}
-
-// Helper method to keep the code clean
-private void sendToErrorPage(HttpServletRequest request, HttpServletResponse response, String msg, int code) 
-        throws ServletException, IOException {
-    request.setAttribute("jakarta.servlet.error.status_code", code);
-    request.setAttribute("jakarta.servlet.error.message", msg);
-    request.setAttribute("jakarta.servlet.error.request_uri", request.getRequestURI());
-    request.getRequestDispatcher("error.jsp").forward(request, response);
-}  /**
-     * Returns a short description of the servlet.
-     *
-     * @return a String containing servlet description
-     */
-    @Override
-    public String getServletInfo() {
-        return "Short description";
-    }// </editor-fold>
 
 }
