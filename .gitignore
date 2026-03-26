@@ -29,3 +29,6 @@ replay_pid*
 /EAD2CourseWork/web/uploads
 /EAD2CourseWork/src/java/config.properties
 
+/test1/nbproject/private/
+/test1/build/
+/test1/dist/
