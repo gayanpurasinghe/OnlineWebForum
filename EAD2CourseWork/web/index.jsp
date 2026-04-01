@@ -93,10 +93,7 @@
     %>
     <% 
         model.User user = (model.User) session.getAttribute("user");
-        if (user == null) {
-            response.sendRedirect("login.jsp");
-            return;
-        }
+        boolean isLoggedIn = (user != null);
         
         PostDAO postDAO = new PostDAO();
         List<Post> posts = postDAO.getAllPosts();
@@ -105,17 +102,23 @@
     <header>
         <a href="index.jsp" class="logo">ForumHub</a>
         <div class="nav-links">
-            <span>Welcome, <strong><%= user.getUsername() %></strong></span>
-            <a href="profile.jsp">My Profile</a>
-            <% if ("admin".equals(user.getRole())) { %>
-                <a href="admin.jsp">Admin Dashboard</a>
+            <% if (isLoggedIn) { %>
+                <span>Welcome, <strong><%= user.getUsername() %></strong></span>
+                <a href="profile.jsp">My Profile</a>
+                <% if ("admin".equals(user.getRole())) { %>
+                    <a href="admin.jsp">Admin Dashboard</a>
+                <% } %>
+                <a href="logout" class="btn btn-danger" onclick="event.preventDefault(); showConfirm('Logout', 'Are you sure you want to logout?', () => window.location.href='logout')">Logout</a>
+            <% } else { %>
+                <a href="login.jsp" class="btn" style="background: transparent; color: var(--text-color);">Login</a>
+                <a href="register.jsp" class="btn">Register</a>
             <% } %>
-            <a href="logout" class="btn btn-danger" onclick="event.preventDefault(); showConfirm('Logout', 'Are you sure you want to logout?', () => window.location.href='logout')">Logout</a>
         </div>
     </header>
 
     <div class="container">
 
+        <% if (isLoggedIn) { %>
         <div class="create-post">
             <h2 style="margin-top:0;">Create a Discussion</h2>
             <form action="PostServlet" method="POST" enctype="multipart/form-data">
@@ -133,6 +136,16 @@
                 <button type="submit" class="btn">Post Question</button>
             </form>
         </div>
+        <% } else { %>
+        <div class="create-post" style="text-align: center; padding: 2.5rem 1rem;">
+            <h2 style="margin-top:0; color: var(--text-color);">Join the Discussion</h2>
+            <p style="color: #6B7280; margin-bottom: 1.5rem;">Join our community to ask questions, share knowledge, and connect with others.</p>
+            <div style="display: flex; gap: 1rem; justify-content: center;">
+                <a href="register.jsp" class="btn">Create an Account</a>
+                <a href="login.jsp" class="btn" style="background: white; color: var(--primary); border: 1px solid var(--primary);">Login</a>
+            </div>
+        </div>
+        <% } %>
 
         <div class="feed">
             <% if (posts != null && !posts.isEmpty()) { 
@@ -147,7 +160,7 @@
                                 <div class="post-meta"><%= post.getCreatedDate() %></div>
                             </div>
                         </div>
-                        <% if ("admin".equals(user.getRole()) || user.getUserId() == post.getUserId()) { %>
+                        <% if (isLoggedIn && ("admin".equals(user.getRole()) || user.getUserId() == post.getUserId())) { %>
                             <form action="PostServlet" method="POST" style="margin:0;" id="deletePost_<%= post.getPostId() %>">
                                 <input type="hidden" name="action" value="deletePost">
                                 <input type="hidden" name="postId" value="<%= post.getPostId() %>">
@@ -179,7 +192,7 @@
                                         <span class="comment-author"><%= c.getUsername() %></span>
                                         <span class="post-meta" style="font-size: 0.75rem;"><%= c.getCreatedDate() %></span>
                                     </div>
-                                    <% if ("admin".equals(user.getRole()) || user.getUserId() == c.getUserId()) { %>
+                                    <% if (isLoggedIn && ("admin".equals(user.getRole()) || user.getUserId() == c.getUserId())) { %>
                                         <form action="PostServlet" method="POST" style="margin:0;" id="deleteComment_<%= c.getCommentId() %>">
                                             <input type="hidden" name="action" value="deleteComment">
                                             <input type="hidden" name="commentId" value="<%= c.getCommentId() %>">
@@ -197,12 +210,18 @@
                                 <div style="color: #6B7280; font-size: 0.875rem;">No replies yet. Be the first to reply!</div>
                         <%  } %>
                         
+                        <% if (isLoggedIn) { %>
                         <form action="PostServlet" method="POST" class="comment-form">
                             <input type="hidden" name="action" value="addComment">
                             <input type="hidden" name="postId" value="<%= post.getPostId() %>">
                             <input type="text" name="commentText" class="form-control" placeholder="Write a reply..." required>
                             <button type="submit" class="btn">Reply</button>
                         </form>
+                        <% } else { %>
+                        <div style="margin-top: 1rem; padding: 1rem; background: #E5E7EB; border-radius: 8px; text-align: center;">
+                            <p style="margin: 0; color: #4B5563; font-size: 0.875rem;">You must be <a href="login.jsp" style="color: var(--primary); font-weight: 500; text-decoration: none;">logged in</a> to reply.</p>
+                        </div>
+                        <% } %>
                     </div>
                 </div>
             <%  }
