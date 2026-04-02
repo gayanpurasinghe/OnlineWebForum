@@ -238,7 +238,7 @@
                                                         <span class="comment-author"><%= reply.getUsername() %></span>
                                                         <span class="post-meta" style="font-size: 0.75rem;"><%= reply.getCreatedDate() %></span>
                                                     </div>
-                                                    <% if ("admin".equals(user.getRole()) || user.getUserId() == reply.getUserId()) { %>
+                                                    <% if (isLoggedIn && ("admin".equals(user.getRole()) || user.getUserId() == reply.getUserId())) { %>
                                                         <form action="PostServlet" method="POST" style="margin:0;" id="deleteComment_<%= reply.getCommentId() %>">
                                                             <input type="hidden" name="action" value="deleteComment">
                                                             <input type="hidden" name="commentId" value="<%= reply.getCommentId() %>">
