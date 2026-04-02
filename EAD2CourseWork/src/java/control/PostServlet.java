@@ -82,27 +82,49 @@ public class PostServlet extends HttpServlet {
 
             boolean success = postDAO.addPost(user.getUserId(), title, content, imageUrl);
             if (success) {
+                // NEW: Trigger the success pop-up for creating a post
+                session.setAttribute("postSuccess", "Your discussion has been posted successfully!");
                 response.sendRedirect("index.jsp");
             } else {
                 request.setAttribute("errorMessage", "Failed to create post. Please try again.");
                 request.getRequestDispatcher("index.jsp").forward(request, response);
             }
-        } else if ("addComment".equals(action)) {
+       } else if ("addComment".equals(action)) {
             int postId = Integer.parseInt(request.getParameter("postId"));
             String commentText = request.getParameter("commentText");
             
-            postDAO.addComment(postId, user.getUserId(), commentText);
+            // --- ALUTH KALLA: Parent Comment ID eka gannawa ---
+            String parentIdStr = request.getParameter("parentCommentId");
+            Integer parentCommentId = null;
+            if (parentIdStr != null && !parentIdStr.isEmpty()) {
+                parentCommentId = Integer.parseInt(parentIdStr);
+            }
+            
+            // Aluth method eka call karanawa (dan variables 4k thiyenawa)
+            postDAO.addComment(postId, user.getUserId(), commentText, parentCommentId);
             response.sendRedirect("index.jsp");
+            
+        // --- ALUTH KALLA: Like Button Eka Wenuwen ---
+        } else if ("toggleLike".equals(action)) {
+            int commentId = Integer.parseInt(request.getParameter("commentId"));
+            postDAO.toggleCommentLike(commentId, user.getUserId());
+            response.sendRedirect("index.jsp");
+            
         } else if ("deletePost".equals(action)) {
             int postId = Integer.parseInt(request.getParameter("postId"));
             // In a real app we'd also check if user is admin or the post owner
             postDAO.deletePost(postId);
+            
+            // NEW: Trigger the info pop-up for deleting a post
+            session.setAttribute("deleteSuccess", "The post was successfully deleted.");
             response.sendRedirect("index.jsp");
+            
         } else if ("deleteComment".equals(action)) {
             int commentId = Integer.parseInt(request.getParameter("commentId"));
             // Basic check could be added here similar to deletePost
             postDAO.deleteComment(commentId);
             response.sendRedirect("index.jsp");
+            
         } else {
             response.sendRedirect("index.jsp");
         }

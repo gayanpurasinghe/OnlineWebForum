@@ -12,6 +12,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Online Web Forum</title>
@@ -185,6 +186,8 @@
                             List<Comment> comments = post.getComments();
                             if (comments != null && !comments.isEmpty()) {
                                 for (Comment c : comments) {
+                                    // Parent comment eka witharai me pennanne
+                                    if(c.getParentCommentId() == null || c.getParentCommentId() == 0){
                         %>
                             <div class="comment">
                                 <div class="comment-header">
@@ -204,8 +207,66 @@
                                     <% } %>
                                 </div>
                                 <div><%= c.getCommentText() %></div>
+
+                                <div style="margin-top: 8px; display: flex; gap: 15px; font-size: 0.85rem; align-items: center;">
+                                    <form action="PostServlet" method="POST" style="margin:0; display: inline;">
+                                        <input type="hidden" name="action" value="toggleLike">
+                                        <input type="hidden" name="commentId" value="<%= c.getCommentId() %>">
+                                        <button type="submit" style="background: none; border: none; color: #4F46E5; cursor: pointer; padding: 0; font-weight: 500;">
+                                            Like (<%= c.getLikesCount() %>)
+                                        </button>
+                                    </form>
+                                    <button onclick="document.getElementById('reply-form-<%= c.getCommentId() %>').style.display='flex'" style="background: none; border: none; color: #6B7280; cursor: pointer; padding: 0;">
+                                        Reply
+                                    </button>
+                                </div>
+
+                                <form id="reply-form-<%= c.getCommentId() %>" action="PostServlet" method="POST" class="comment-form" style="display: none; margin-top: 10px; margin-left: 20px;">
+                                    <input type="hidden" name="action" value="addComment">
+                                    <input type="hidden" name="postId" value="<%= post.getPostId() %>">
+                                    <input type="hidden" name="parentCommentId" value="<%= c.getCommentId() %>">
+                                    <input type="text" name="commentText" class="form-control" placeholder="Write a reply..." required style="padding: 0.5rem; font-size: 0.9rem;">
+                                    <button type="submit" class="btn" style="padding: 0.5rem 1rem;">Send</button>
+                                </form>
+
+                                <% if (c.getReplies() != null && !c.getReplies().isEmpty()) { %>
+                                    <div style="margin-top: 10px; margin-left: 30px; border-left: 2px solid #E5E7EB; padding-left: 15px;">
+                                        <% for (Comment reply : c.getReplies()) { %>
+                                            <div class="comment" style="background: white; border: 1px solid #E5E7EB;">
+                                                <div class="comment-header">
+                                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                                        <span class="comment-author"><%= reply.getUsername() %></span>
+                                                        <span class="post-meta" style="font-size: 0.75rem;"><%= reply.getCreatedDate() %></span>
+                                                    </div>
+                                                    <% if ("admin".equals(user.getRole()) || user.getUserId() == reply.getUserId()) { %>
+                                                        <form action="PostServlet" method="POST" style="margin:0;" id="deleteComment_<%= reply.getCommentId() %>">
+                                                            <input type="hidden" name="action" value="deleteComment">
+                                                            <input type="hidden" name="commentId" value="<%= reply.getCommentId() %>">
+                                                            <button type="button" class="btn btn-danger" style="padding: 0.15rem 0.4rem; font-size: 0.7rem;" 
+                                                                onclick="showConfirm('Delete Reply', 'Are you sure you want to delete this reply?', () => document.getElementById('deleteComment_<%= reply.getCommentId() %>').submit())">
+                                                                Delete
+                                                            </button>
+                                                        </form>
+                                                    <% } %>
+                                                </div>
+                                                <div><%= reply.getCommentText() %></div>
+                                                
+                                                <div style="margin-top: 8px;">
+                                                    <form action="PostServlet" method="POST" style="margin:0;">
+                                                        <input type="hidden" name="action" value="toggleLike">
+                                                        <input type="hidden" name="commentId" value="<%= reply.getCommentId() %>">
+                                                        <button type="submit" style="background: none; border: none; color: #4F46E5; cursor: pointer; padding: 0; font-size: 0.85rem;">
+                                                            Like (<%= reply.getLikesCount() %>)
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        <% } %>
+                                    </div>
+                                <% } %>
                             </div>
-                        <%      }
+                        <%          } // End of parent check
+                                } 
                             } else { %>
                                 <div style="color: #6B7280; font-size: 0.875rem;">No replies yet. Be the first to reply!</div>
                         <%  } %>
@@ -214,8 +275,8 @@
                         <form action="PostServlet" method="POST" class="comment-form">
                             <input type="hidden" name="action" value="addComment">
                             <input type="hidden" name="postId" value="<%= post.getPostId() %>">
-                            <input type="text" name="commentText" class="form-control" placeholder="Write a reply..." required>
-                            <button type="submit" class="btn">Reply</button>
+                            <input type="text" name="commentText" class="form-control" placeholder="Write a comment..." required>
+                            <button type="submit" class="btn">Comment</button>
                         </form>
                         <% } else { %>
                         <div style="margin-top: 1rem; padding: 1rem; background: #E5E7EB; border-radius: 8px; text-align: center;">
@@ -233,6 +294,7 @@
             <% } %>
         </div>
     </div>
+    
     <script src="js/popup.js"></script>
 </body>
 </html>
