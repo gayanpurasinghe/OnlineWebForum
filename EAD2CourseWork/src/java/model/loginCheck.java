@@ -23,7 +23,7 @@ public class loginCheck {
             if (rs.next()) {
                 boolean isBanned = rs.getBoolean("is_banned");
                 if (isBanned) {
-                    lastError = "Your account has been banned by an administrator.";
+                    lastError = "Your account has been banned by an administrator. please contact via forumhub@email.com";
                     return null;
                 }
                 

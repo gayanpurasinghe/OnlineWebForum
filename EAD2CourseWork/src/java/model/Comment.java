@@ -1,6 +1,9 @@
 package model;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
+
+import java.util.List;
 
 public class Comment {
     private int commentId;
@@ -10,6 +13,9 @@ public class Comment {
     private String userProfilePic;
     private String commentText;
     private Timestamp createdDate;
+    private Integer parentCommentId; // Normal comment ekak nam meka null
+    private int likesCount;          // Like ganana
+    private List<Comment> replies = new ArrayList<>(); // Reply list eka
 
     public Comment() {}
 
@@ -33,4 +39,18 @@ public class Comment {
 
     public Timestamp getCreatedDate() { return createdDate; }
     public void setCreatedDate(Timestamp createdDate) { this.createdDate = createdDate; }
+    
+    public Integer getParentCommentId() { return parentCommentId; }
+    public void setParentCommentId(Integer parentCommentId) { this.parentCommentId = parentCommentId; }
+
+    public int getLikesCount() { return likesCount; }
+    public void setLikesCount(int likesCount) { this.likesCount = likesCount; }
+
+    public List<Comment> getReplies() { return replies; }
+    public void setReplies(List<Comment> replies) { this.replies = replies; }
+    
+    // Reply ekak add karanna loku lesiyata podi method ekak
+    public void addReply(Comment reply) {
+        this.replies.add(reply);
+    }
 }
