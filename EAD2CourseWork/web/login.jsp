@@ -100,9 +100,11 @@ button[type="reset"] {
         <form method="POST" action="login">
             <div class="login-container">
                 <div class="logo" align="center">
-                    <img src="images/LogoBG.png" alt="LogoBG.png" class="logo-image">
+                    <a href="index.jsp" style="text-decoration: none; display: inline-block;">
+                        <img src="images/LogoBG.png" alt="LogoBG.png" class="logo-image">
+                    </a>
                 </div>
-                <h2>Login</h2>
+                <h2><a href="index.jsp" style="text-decoration: none; color: inherit;">Login</a></h2>
 
                 <label for="username">Username:</label>
                 <input type="text" id="username" name="username" required>
