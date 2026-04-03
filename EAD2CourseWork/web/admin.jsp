@@ -73,8 +73,12 @@
         .badge-active { background: #D1FAE5; color: #065F46; }
         .badge-banned { background: #FEE2E2; color: #991B1B; }
     </style>
+    <link rel="stylesheet" type="text/css" href="css/popup.css">
 </head>
-<body>
+<body 
+    data-error="<%= "1".equals(request.getParameter("error")) ? "An error occurred while processing your request." : "" %>"
+    data-success="<%= "1".equals(request.getParameter("success")) ? "Action completed successfully!" : "" %>"
+>
     <%-- Session Verification --%>
     <% 
         User currentUser = (User) session.getAttribute("user");
@@ -100,12 +104,6 @@
     <div class="container">
         
         <h2 style="margin-top:0;">Platform Overview</h2>
-        
-        <% if ("1".equals(request.getParameter("success"))) { %>
-            <div class="alert alert-success">Action completed successfully!</div>
-        <% } else if ("1".equals(request.getParameter("error"))) { %>
-             <div class="alert alert-danger">An error occurred while processing your request.</div>
-        <% } %>
 
         <div class="stats-grid">
             <div class="stat-card">
@@ -147,21 +145,24 @@
                             <% } %>
                         </td>
                         <td>
-                            <form action="AdminServlet" method="POST" style="display:inline;">
+                            <form action="AdminServlet" method="POST" style="display:inline;" id="authForm_<%= u.getUserId() %>">
                                 <input type="hidden" name="userId" value="<%= u.getUserId() %>">
                                 <% if (u.isBanned()) { %>
                                     <input type="hidden" name="action" value="unban">
-                                    <button type="submit" class="btn btn-success" style="padding: 0.35rem 0.75rem; font-size: 0.875rem;" onclick="return confirm('Are you sure you want to UNBAN this user?');">Unban</button>
+                                    <button type="button" class="btn btn-success" style="padding: 0.35rem 0.75rem; font-size: 0.875rem;" 
+                                        onclick="showConfirm('Unban User', 'Are you sure you want to UNBAN <%= u.getUsername() %>?', () => document.getElementById('authForm_<%= u.getUserId() %>').submit())">Unban</button>
                                 <% } else { %>
                                     <input type="hidden" name="action" value="ban">
-                                    <button type="submit" class="btn btn-warning" style="padding: 0.35rem 0.75rem; font-size: 0.875rem;" onclick="return confirm('Are you sure you want to BAN this user?');">Ban</button>
+                                    <button type="button" class="btn btn-warning" style="padding: 0.35rem 0.75rem; font-size: 0.875rem;" 
+                                    onclick="showConfirm('Ban User', 'Are you sure you want to BAN <%= u.getUsername() %>?', () => document.getElementById('authForm_<%= u.getUserId() %>').submit())">Ban</button>
                                 <% } %>
                             </form>
                             
-                            <form action="AdminServlet" method="POST" style="display:inline; margin-left: 0.5rem;">
+                            <form action="AdminServlet" method="POST" style="display:inline; margin-left: 0.5rem;" id="deleteForm_<%= u.getUserId() %>">
                                 <input type="hidden" name="userId" value="<%= u.getUserId() %>">
                                 <input type="hidden" name="action" value="delete">
-                                <button type="submit" class="btn btn-danger" style="padding: 0.35rem 0.75rem; font-size: 0.875rem;" onclick="return confirm('WARNING: This will permanently delete the user and all their posts/comments. Are you absolutely sure?');">Delete</button>
+                                <button type="button" class="btn btn-danger" style="padding: 0.35rem 0.75rem; font-size: 0.875rem;" 
+                                    onclick="showConfirm('Delete User', 'WARNING: This will permanently delete <%= u.getUsername() %> and all their posts/comments. Are you absolutely sure?', () => document.getElementById('deleteForm_<%= u.getUserId() %>').submit())">Delete</button>
                             </form>
                         </td>
                     </tr>
@@ -173,5 +174,6 @@
             </table>
         </div>
     </div>
+    <script src="js/popup.js"></script>
 </body>
 </html>
